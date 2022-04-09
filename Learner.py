@@ -18,9 +18,9 @@ class DQNLearner:
     def __init__(self,
                  lr=1e-4, tau = 0.005,
                  discount_factor=0.9,
+                 batch_size=256, memory_size=100000,
                  chart_data=None,
-                 min_trading_price=None, max_trading_price=None,
-                 batch_size=256, memory_size=100000):
+                 min_trading_price=None, max_trading_price=None):
 
         assert min_trading_price >= 0
         assert max_trading_price > 0
@@ -35,13 +35,10 @@ class DQNLearner:
         self.EPS_START = 0.9
         self.EPS_DECAY = 1e+3
 
-        state_dim1 =  5 #Price column 제외
-        state_dim2 = 8 #portfolio dimension
-
         self.qnet = qnet()
         self.qnet_target = qnet()
         self.qnet_target.load_state_dict(self.qnet.state_dict())
-        self.qnet.encoding.Encoder.load_state_dict(torch.load("/Users/mac/Desktop/Save Results2/encoder.pth"))
+        self.qnet.encoding.Encoder.load_state_dict(torch.load(utils.SAVE_DIR + "AutoEncoder/encoder.pth"))
         self.qnet.encoding.Encoder.eval()
 
         self.lr = lr

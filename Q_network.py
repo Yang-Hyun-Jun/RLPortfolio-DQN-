@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 
 from AutoEncoder import MLPEncoder
-from AutoEncoder import MLPDecoder
 
 
 class encoding(nn.Module):

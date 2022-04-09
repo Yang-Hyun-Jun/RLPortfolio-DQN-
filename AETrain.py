@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
+import utils
 
 from torch.utils.data import TensorDataset
 from torch.utils.data import DataLoader
@@ -18,17 +19,9 @@ if __name__ == "__main__":
                                   "000810"])
     args = parser.parse_args()
 
-"010140"  # 삼성중공업
-"013570"  # 디와이
-"010690"  # 화신
-"000910"  # 유니온
-"010060"  # OCI
-"034220"  # LG디스플레이
-"009540"  # 한국조선해양
-
 path_list = []
 for stock_code in args.stock_code:
-    path = "/Users/mac/Desktop/OHLCV_data/ALL_OHLCV" + "/" + stock_code
+    path = utils.Base_DIR + "/" + stock_code
     path_list.append(path)
 
 train_data, test_data = DataManager.get_data_tensor(path_list,
@@ -93,8 +86,8 @@ class Train_AE(nn.Module):
 train_ae = Train_AE(AutoEncoder=autoencoder(5), lr=1e-3)
 train_ae.train(epochs=100)
 train_ae.validate(x_valid, y_valid)
-train_ae.save_model("/Users/mac/Desktop/Save Results2/encoder.pth",
-                    "/Users/mac/Desktop/Save Results2/decoder.pth")
+train_ae.save_model(utils.SAVE_DIR + "AutoEncoder/encoder.pth",
+                    utils.SAVE_DIR + "AutoEncoder/decoder.pth")
 
 
 

@@ -15,9 +15,6 @@ if __name__ == "__main__":
                   "011170", "010060", "034220",
                   "000810"]
 
-    utils.Base_DIR = "/Users/mac/Desktop/OHLCV_data/ALL_OHLCV"
-    utils.SAVE_DIR = "/Users/mac/Desktop/Save Results2" + "/" + "MLPortfolio"
-
     path_list = []
     for code in stock_code:
         path = utils.Base_DIR + "/" + code

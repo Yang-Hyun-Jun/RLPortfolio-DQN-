@@ -1,12 +1,7 @@
 import numpy as np
 
-stock_code = "005930"
-train_start = ""
-train_end = ""
-test_start = ""
-test_end = ""
 Base_DIR = "/Users/mac/Desktop/OHLCV_data/ALL_OHLCV"
-SAVE_DIR = "/Users/mac/Desktop/Save Results2"
+SAVE_DIR = "/Users/mac/Desktop/RLPortfolio"
 
 def sigmoid(x):
     x = np.clip(x, -10, 10)

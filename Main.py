@@ -10,14 +10,23 @@ if __name__ == "__main__":
   parser.add_argument("--stock_code", nargs="+", default= ["010140", "006280", "009830",
                                                            "011170", "010060", "034220",
                                                            "000810"])
+  # 상승
+  #010140: 삼성중공업
+  #006280: 녹십자
+  #009830: 한화솔루션
+  #011170: 롯데케미칼
+  #010060: OCI
+  #034220: LG디스플레이
+  #000810: 삼성화재
 
-  # ["010140", "006280", "009830",
-  #  "011170", "010060", "034220",
-  #  "000810"]
-
-  #["010140", "013570", "010690",
-  # "000910", "010060", "034220",
-  # "009540"]
+  # 박스권/하락
+  #010140: 삼성중공업
+  #013570: 디와이
+  #010690: 화신
+  #000910: 유니온
+  #010060: OCI
+  #034220: LG디스플레이
+  #009540: 한국조선해양
 
   parser.add_argument("--lr", type=float, default=1e-4)
   parser.add_argument("--tau", type=float, default=0.005)
@@ -26,16 +35,15 @@ if __name__ == "__main__":
   parser.add_argument("--balance", type=int, default=14000000)
   parser.add_argument("--batch_size", type=int, default=256)
   parser.add_argument("--memory_size", type=int, default=100000)
-  parser.add_argument("--train_start", default="20090101")
-  parser.add_argument("--train_end", default=None)
+  parser.add_argument("--train_date_start", default="20090101")
+  parser.add_argument("--train_date_end", default="20180101")
+  parser.add_argument("--test_date_start", default="20180102")
+  parser.add_argument("--test_date_end", default=None)
   args = parser.parse_args()
 
 #유틸 저장 및 경로 설정
-utils.stock_code = args.stock_code
-utils.train_start = args.train_start
-utils.train_end = args.train_end
 utils.Base_DIR = "/Users/mac/Desktop/OHLCV_data/ALL_OHLCV"
-utils.SAVE_DIR = "/Users/mac/Desktop/Save Results2" + "/" + "MLPortfolio"
+utils.SAVE_DIR = "/Users/mac/Desktop/RLPortfolio" + "/" + "DQNPortfolio"
 os.makedirs(utils.SAVE_DIR + "/Metrics", exist_ok=True)
 os.makedirs(utils.SAVE_DIR + "/Models", exist_ok=True)
 
@@ -46,10 +54,10 @@ for stock_code in args.stock_code:
 
 # 학습/테스트 데이터 준비
 train_data, test_data = DataManager.get_data_tensor(path_list,
-                                                    train_date_start="20090101",
-                                                    train_date_end="20180101",
-                                                    test_date_start="20180102",
-                                                    test_date_end=None)
+                                                    train_date_start=args.train_date_start,
+                                                    train_date_end=args.train_date_end,
+                                                    test_date_start=args.test_date_start,
+                                                    test_date_end=args.test_date_end)
 
 # # 최소/최대 투자 가격 설정
 min_trading_price = 0
