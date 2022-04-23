@@ -38,7 +38,7 @@ class DQNLearner:
         self.qnet = qnet()
         self.qnet_target = qnet()
         self.qnet_target.load_state_dict(self.qnet.state_dict())
-        self.qnet.encoding.Encoder.load_state_dict(torch.load(utils.SAVE_DIR + "AutoEncoder/encoder.pth"))
+        self.qnet.encoding.Encoder.load_state_dict(torch.load("/Users/mac/Desktop/RLPortfolio/AutoEncoder/encoder.pth"))
         self.qnet.encoding.Encoder.eval()
 
         self.lr = lr

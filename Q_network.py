@@ -34,10 +34,14 @@ class Regressor(nn.Module):
         self.layer4 = nn.Linear(64, output_dim)
         self.hidden_act = nn.ReLU()
         self.out_act = nn.Identity()
-        nn.init.xavier_uniform_(self.layer1.weight)
-        nn.init.xavier_uniform_(self.layer2.weight)
-        nn.init.xavier_uniform_(self.layer3.weight)
-        nn.init.xavier_uniform_(self.layer4.weight)
+        # nn.init.xavier_uniform_(self.layer1.weight)
+        # nn.init.xavier_uniform_(self.layer2.weight)
+        # nn.init.xavier_uniform_(self.layer3.weight)
+        # nn.init.xavier_uniform_(self.layer4.weight)
+        nn.init.kaiming_normal_(self.layer1.weight, nonlinearity="relu")
+        nn.init.kaiming_normal_(self.layer2.weight, nonlinearity="relu")
+        nn.init.kaiming_normal_(self.layer3.weight, nonlinearity="relu")
+        nn.init.kaiming_normal_(self.layer4.weight, nonlinearity="relu")
 
     def forward(self, x, state2):
         x = torch.concat([x, state2.view(-1, self.state2_dim)], dim=-1)

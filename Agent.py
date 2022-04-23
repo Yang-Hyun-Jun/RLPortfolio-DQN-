@@ -17,10 +17,10 @@ class agent(nn.Module):
     STATE_DIM = 3
     # 관리 종목 수
     K = 7
-    # TRADING_CHARGE = 0.00015
-    # TRADING_TEX = 0.0025
-    TRADING_CHARGE = 0.0
-    TRADING_TEX = 0.0
+    TRADING_CHARGE = 0.00015
+    TRADING_TEX = 0.0025
+    # TRADING_CHARGE = 0.0
+    # TRADING_TEX = 0.0
 
     ACTION_BUY = 0
     ACTION_SELL = 1

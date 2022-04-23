@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     agent.epsilon = 0.0
     #Model parameter load
-    model_path = utils.SAVE_DIR + "/Models" + "/DQNPortfolio.pth"
+    model_path = utils.SAVE_DIR + "/DQNPortfolio/Models" + "/DQNPortfolio.pth"
     agent.qnet.load_state_dict(torch.load(model_path))
     agent.qnet_target.load_state_dict(agent.qnet.state_dict())
 
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     while True:
         index, actions, confidences = agent.get_action(torch.tensor(state1).float().view(1, 7, -1),
                                                        torch.tensor(state2).float())
-        actions = np.array([0]*7)
+        # actions = np.array([0]*7)
         confidences = np.array([1.0]*7)
         next_state1, next_state2, reward, done = agent.step(actions, confidences)
 
@@ -147,10 +147,10 @@ if __name__ == "__main__":
         if done:
             break
 
-    Vsave_path2 = utils.SAVE_DIR + "/" + "/Metrics" + "/Portfolio Value Curve_test"
-    Vsave_path4 = utils.SAVE_DIR + "/" + "/Metrics" + "/Profitloss Curve_test"
-    Msave_path1 = utils.SAVE_DIR + "/" + "/Metrics" + "/Portfolio Value_test"
-    Msave_path3 = utils.SAVE_DIR + "/" + "/Metrics" + "/Profitloss_test"
+    Vsave_path2 = utils.SAVE_DIR + "/DQNPortfolio" + "/Metrics" + "/Portfolio Value Curve_test"
+    Vsave_path4 = utils.SAVE_DIR + "/DQNPortfolio" + "/Metrics" + "/Profitloss Curve_test"
+    Msave_path1 = utils.SAVE_DIR + "/DQNPortfolio" + "/Metrics" + "/Portfolio Value_test"
+    Msave_path3 = utils.SAVE_DIR + "/DQNPortfolio" + "/Metrics" + "/Profitloss_test"
 
     metrics.get_portfolio_values(save_path=Msave_path1)
     metrics.get_profitlosses(save_path=Msave_path3)
