@@ -1,64 +1,108 @@
 import torch
 import torch.nn as nn
 
-from AutoEncoder import MLPEncoder
 
-
-class encoding(nn.Module):
-    def __init__(self, state1_dim=5):
-        super().__init__()
-        self.Encoder = MLPEncoder(state1_dim)
-
-    def forward(self, state1):
-        x1 = self.Encoder(state1[:,0,:])
-        x2 = self.Encoder(state1[:,1,:])
-        x3 = self.Encoder(state1[:,2,:])
-        x4 = self.Encoder(state1[:,3,:])
-        x5 = self.Encoder(state1[:,4,:])
-        x6 = self.Encoder(state1[:,5,:])
-        x7 = self.Encoder(state1[:,6,:])
-
-        x = torch.concat([x1, x2, x3, x4,
-                          x5, x6, x7], dim=-1)
-        return x
-#
-class Regressor(nn.Module):
-    def __init__(self, state2_dim=8, output_dim=2187):
+class Score(nn.Module):
+    def __init__(self, state1_dim=5, output_dim=1):
         super().__init__()
 
-        self.state2_dim = state2_dim
+        self.state1_dim = state1_dim
         self.output_dim = output_dim
-        self.layer1 = nn.Linear(7*128+state2_dim, 256)
-        self.layer2 = nn.Linear(256, 128)
-        self.layer3 = nn.Linear(128, 64)
-        self.layer4 = nn.Linear(64, output_dim)
+
+        self.layer1 = nn.Linear(state1_dim, 128)
+        self.layer2 = nn.Linear(128, 64)
+        self.layer3 = nn.Linear(64, output_dim)
+
         self.hidden_act = nn.ReLU()
         self.out_act = nn.Identity()
 
         nn.init.kaiming_normal_(self.layer1.weight, nonlinearity="relu")
         nn.init.kaiming_normal_(self.layer2.weight, nonlinearity="relu")
         nn.init.kaiming_normal_(self.layer3.weight, nonlinearity="relu")
-        nn.init.kaiming_normal_(self.layer4.weight, nonlinearity="relu")
 
-    def forward(self, x, state2):
-        x = torch.concat([x, state2.view(-1, self.state2_dim)], dim=-1)
-        x = self.layer1(x)
+    def forward(self, s1):
+        x = self.layer1(s1)
         x = self.hidden_act(x)
         x = self.layer2(x)
         x = self.hidden_act(x)
         x = self.layer3(x)
-        x = self.hidden_act(x)
-        x = self.layer4(x)
         x = self.out_act(x)
         return x
 
-class qnet(nn.Module):
-    def __init__(self, state1_dim=5, state2_dim=8, output_dim=2187):
-        super().__init__()
-        self.encoding = encoding(state1_dim)
-        self.regressor = Regressor(state2_dim, output_dim)
 
-    def forward(self, state1, state2):
-        x = self.encoding(state1)
-        x = self.regressor(x, state2)
-        return x
+class Qnet(nn.Module):
+    def __init__(self, score_net, K):
+        super().__init__()
+        self.score_net = score_net
+        self.K = K
+
+        # output_dim * K + state2_dim
+        self.layer1 = nn.Linear(1 * K + 1+K, 128)
+        self.layer2 = nn.Linear(128, 64)
+        self.layer3 = nn.Linear(64, 3**K)
+        self.hidden_act = nn.ReLU()
+
+        nn.init.kaiming_normal_(self.layer1.weight, nonlinearity="relu")
+        nn.init.kaiming_normal_(self.layer2.weight, nonlinearity="relu")
+        nn.init.kaiming_normal_(self.layer3.weight, nonlinearity="relu")
+
+    def forward(self, s1_tensor, portfolio):
+
+        for i in range(self.K):
+            globals()[f"x{i+1}"] = self.score_net(s1_tensor[:,i,:])
+
+        for k in range(self.K):
+            x_list = list() if k == 0 else x_list
+            x_list.append(globals()[f"x{k+1}"])
+
+        # header
+        x = torch.cat(x_list + [portfolio], dim=-1)
+        x = self.layer1(x)
+        x = self.hidden_act(x)
+        x = self.layer2(x)
+        x = self.hidden_act(x)
+        q = self.layer3(x)
+        return q
+
+# class Qnet(nn.Module):
+#     def __init__(self, state1_dim=5, state2_dim=None, K=None):
+#         super().__init__()
+#
+#         self.state1_dim = state1_dim
+#         self.state2_dim = state2_dim
+#         self.K = K
+#         self.output_dim = 3 ** K
+#         self.layer1 = nn.Linear(K*state1_dim+state2_dim, 256)
+#         self.layer2 = nn.Linear(256, 128)
+#         self.layer3 = nn.Linear(128, 64)
+#         self.drop = nn.Dropout()
+#         self.layer4 = nn.Linear(64, self.output_dim)
+#         self.hidden_act = nn.ReLU()
+#         self.out_act = nn.Identity()
+#
+#         nn.init.kaiming_normal_(self.layer1.weight, nonlinearity="relu")
+#         nn.init.kaiming_normal_(self.layer2.weight, nonlinearity="relu")
+#         nn.init.kaiming_normal_(self.layer3.weight, nonlinearity="relu")
+#         nn.init.kaiming_normal_(self.layer4.weight, nonlinearity="relu")
+#
+#     def forward(self, state1, state2):
+#         s1 = state1.view(-1, self.K * self.state1_dim)
+#         x = torch.concat([s1, state2.view(-1, self.state2_dim)], dim=-1)
+#         x = self.layer1(x)
+#         x = self.hidden_act(x)
+#         x = self.layer2(x)
+#         x = self.hidden_act(x)
+#         x = self.layer3(x)
+#         x = self.hidden_act(x)
+#         x = self.layer4(x)
+#         x = self.out_act(x)
+#         return x
+
+if __name__ == "__main__":
+    s1_tensor = torch.rand(size=(10, 4, 5))
+    portfolio = torch.rand(size=(10, 5))
+
+    score_net = Score()
+    qnet = Qnet(score_net, K=4)
+    q_value = qnet(s1_tensor, portfolio)
+    print(q_value.shape)

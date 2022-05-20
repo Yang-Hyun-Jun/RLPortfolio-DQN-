@@ -2,42 +2,41 @@ import os
 import argparse
 import DataManager
 import utils
-
 from Learner import DQNLearner
+
+"""
+상승
+010140: 삼성중공업
+006280: 녹십자
+009830: 한화솔루션
+011170: 롯데케미칼
+010060: OCI
+034220: LG디스플레이
+000810: 삼성화재
+
+박스권/하락
+010140: 삼성중공업
+013570: 디와이
+010690: 화신
+000910: 유니온
+010060: OCI
+034220: LG디스플레이
+009540: 한국조선해양
+"""
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("--stock_code", nargs="+", default= ["010140", "006280", "009830",
-                                                           "011170", "010060", "034220",
-                                                           "000810"])
-  # 상승
-  #010140: 삼성중공업
-  #006280: 녹십자
-  #009830: 한화솔루션
-  #011170: 롯데케미칼
-  #010060: OCI
-  #034220: LG디스플레이
-  #000810: 삼성화재
-
-  # 박스권/하락
-  #010140: 삼성중공업
-  #013570: 디와이
-  #010690: 화신
-  #000910: 유니온
-  #010060: OCI
-  #034220: LG디스플레이
-  #009540: 한국조선해양
-
-  parser.add_argument("--lr", type=float, default=1e-4)
+  parser.add_argument("--stock_code", nargs="+", default= ["010140", "005930", "034220"])
+  parser.add_argument("--lr", type=float, default=1e-5)
   parser.add_argument("--tau", type=float, default=0.005)
   parser.add_argument("--discount_factor", type=float, default=0.9)
-  parser.add_argument("--num_episode", type=int, default=150)
-  parser.add_argument("--balance", type=int, default=14000000)
-  parser.add_argument("--batch_size", type=int, default=256)
-  parser.add_argument("--memory_size", type=int, default=100000)
+  parser.add_argument("--num_episode", type=int, default=20)
+  parser.add_argument("--balance", type=int, default=15000000)
+  parser.add_argument("--batch_size", type=int, default=30)
+  parser.add_argument("--memory_size", type=int, default=100)
   parser.add_argument("--train_date_start", default="20090101")
-  parser.add_argument("--train_date_end", default="20180101")
-  parser.add_argument("--test_date_start", default="20180102")
+  parser.add_argument("--train_date_end", default="20150101")
+  parser.add_argument("--test_date_start", default="20170102")
   parser.add_argument("--test_date_end", default=None)
   args = parser.parse_args()
 
@@ -61,10 +60,10 @@ train_data, test_data = DataManager.get_data_tensor(path_list,
 
 # # 최소/최대 투자 가격 설정
 min_trading_price = 0
-max_trading_price = args.balance / len(args.stock_code)
+max_trading_price = 500000
 
 # 파라미터 설정
-params = {"lr":args.lr, "tau":args.tau,
+params = {"lr":args.lr, "tau":args.tau, "K":len(args.stock_code),
           "chart_data": train_data, "discount_factor":args.discount_factor,
           "min_trading_price": min_trading_price, "max_trading_price": max_trading_price,
           "batch_size":args.batch_size, "memory_size":args.memory_size}
